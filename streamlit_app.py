@@ -1,8 +1,7 @@
 import time
 import streamlit as st
-from typing import List, Dict, Tuple, Optional
+from typing import List, Dict, Tuple
 from dataclasses import dataclass, field
-import random
 import csv
 import io
 
@@ -72,122 +71,106 @@ class Node:
     past_calculation_title = 0
 
     def calculate_riseup_binary_bonus(self, bonus_params: Dict[str, float],binary_number) -> int:
-        def calculate_bonus_for_binary(binary_number: int) -> float:
-            if self.calculation_title == 0:
-                if binary_number <= 20:
-                    return bonus_params["level1"] * binary_number / 4
-                else:
-                    return bonus_params["level1"] * 5
-            elif self.calculation_title == 1:
-                if binary_number <= 60:
-                    return bonus_params["level1"] * binary_number / 4
-                else:
-                    return bonus_params["level1"] * 15
-            elif self.calculation_title == 2:
-                if binary_number <= 200:
-                    return bonus_params["level1"] * binary_number / 4
-                else:
-                    return bonus_params["level1"] * 50
-            elif self.calculation_title == 3:
-                if binary_number <= 600:
-                    return bonus_params["level2"] * binary_number / 4
-                else:
-                    return bonus_params["level2"] * 150
-            elif self.calculation_title == 4:
-                if binary_number <= 1000:
-                    return bonus_params["level3"] * binary_number / 4
-                else:
-                    return bonus_params["level3"] * 250
-            elif self.calculation_title == 5:
-                if binary_number <= 2000:
-                    return bonus_params["level3"] * binary_number / 4
-                else:
-                    return bonus_params["level3"] * 500
-            elif self.calculation_title == 6:
-                if binary_number <= 4000:
-                    return bonus_params["level3"] * binary_number / 4
-                else:
-                    return bonus_params["level3"] * 1000
-            elif self.calculation_title == 7:
-                if binary_number <= 6000:
-                    return bonus_params["level4"] * binary_number / 4
-                else:
-                    return bonus_params["level4"] * 1500
-            elif self.calculation_title == 8:
-                if binary_number <= 10000:
-                    return bonus_params["level4"] * binary_number / 4
-                else:
-                    return bonus_params["level4"] * 2500
-            elif self.calculation_title == 9:
-                if binary_number <= 20000:
-                    return bonus_params["level4"] * binary_number / 4
-                else:
-                    return bonus_params["level4"] * 5000
-            elif self.calculation_title == 10:
+        if self.calculation_title == 0:
+            if binary_number <= 20:
+                return bonus_params["level1"] * binary_number / 4
+            else:
+                return bonus_params["level1"] * 5
+        elif self.calculation_title == 1:
+            if binary_number <= 60:
+                return bonus_params["level1"] * binary_number / 4
+            else:
+                return bonus_params["level1"] * 15
+        elif self.calculation_title == 2:
+            if binary_number <= 200:
+                return bonus_params["level1"] * binary_number / 4
+            else:
+                return bonus_params["level1"] * 50
+        elif self.calculation_title == 3:
+            if binary_number <= 600:
+                return bonus_params["level2"] * binary_number / 4
+            else:
+                return bonus_params["level2"] * 150
+        elif self.calculation_title == 4:
+            if binary_number <= 1000:
+                return bonus_params["level3"] * binary_number / 4
+            else:
+                return bonus_params["level3"] * 250
+        elif self.calculation_title == 5:
+            if binary_number <= 2000:
+                return bonus_params["level3"] * binary_number / 4
+            else:
+                return bonus_params["level3"] * 500
+        elif self.calculation_title == 6:
+            if binary_number <= 4000:
+                return bonus_params["level3"] * binary_number / 4
+            else:
+                return bonus_params["level3"] * 1000
+        elif self.calculation_title == 7:
+            if binary_number <= 6000:
                 return bonus_params["level4"] * binary_number / 4
-            
-        bonus = 0
-        bonus += calculate_bonus_for_binary(binary_number)
-        return int(bonus)
+            else:
+                return bonus_params["level4"] * 1500
+        elif self.calculation_title == 8:
+            if binary_number <= 10000:
+                return bonus_params["level4"] * binary_number / 4
+            else:
+                return bonus_params["level4"] * 2500
+        elif self.calculation_title == 9:
+            if binary_number <= 20000:
+                return bonus_params["level4"] * binary_number / 4
+            else:
+                return bonus_params["level4"] * 5000
+        elif self.calculation_title == 10:
+            return bonus_params["level4"] * binary_number / 4
 
     def calculate_product_free_bonus(self, bonus_pf: Dict[str, int],binary_number) -> int:
-        def calculate_bonus_for_binary(binary_number: int) -> int:
-            if binary_number >= 4 and binary_number < 8:
-                return bonus_pf["pf4"]
-            elif binary_number >= 8 and binary_number < 12:
-                return bonus_pf["pf8"]
-            elif binary_number >= 12 and binary_number < 16:
-                return bonus_pf["pf12"]
-            elif binary_number == 16:
-                return bonus_pf["pf16"]
-            else:
-                return 0
-        bonus = 0
-        bonus += calculate_bonus_for_binary(binary_number)
-        return bonus
+        if binary_number >= 4 and binary_number < 8:
+            return bonus_pf["pf4"]
+        elif binary_number >= 8 and binary_number < 12:
+            return bonus_pf["pf8"]
+        elif binary_number >= 12 and binary_number < 16:
+            return bonus_pf["pf12"]
+        elif binary_number == 16:
+            return bonus_pf["pf16"]
+        else:
+            return 0
 
     def calculate_matching_bonus(self, bonus_rise_params: Dict[str, float]) -> int:
         bonus = 0
+        a_c = 0
         c = len(self.children)
-        for child in self.children:
-            if c >= 1:
-                if child.active:
+        if c >= 1:
+            for child in self.children:
+                if child.active and child.ba and child.mp:
                     if child.cumulative_left <= child.cumulative_right:
                         child_binary_number = child.cumulative_left * 2
                     else:
                         child_binary_number = child.cumulative_right * 2
                     bonus += child.calculate_riseup_binary_bonus(bonus_rise_params, child_binary_number) * 0.15
-                    gc = len(child.children)
-                else:
-                    continue
-                    gc = len(child.children)
-            else:
-                continue
-                gc = len(child.children)
-            for grandchild in child.children:
-                if gc >= 2:
-                    if grandchild.active:
-                        if grandchild.cumulative_left <= grandchild.cumulative_right:
-                            grandchild_binary_number = grandchild.cumulative_left * 2
-                        else:
-                            grandchild_binary_number = grandchild.cumulative_right * 2
-                        bonus += grandchild.calculate_riseup_binary_bonus(bonus_rise_params, grandchild_binary_number) * 0.05
-                        ggc = len(grandchild.children)
-                    else:
-                        continue
-                        ggc = len(grandchild.children)
-                else:
-                    continue
-                    ggc = len(grandchild.children)
-                for great_grandchild in grandchild.children:
-                    if ggc >= 3:
-                        if great_grandchild.active:
-                            if great_grandchild.cumulative_left <= great_grandchild.cumulative_right:
-                                ggc_binary_number = great_grandchild.cumulative_left * 2
-                            else:
-                                ggc_binary_number = great_grandchild.cumulative_right * 2
-                            bonus += great_grandchild.calculate_riseup_binary_bonus(bonus_rise_params, ggc_binary_number) * 0.05
-        return int(bonus)
+                    bonus = int(bonus)
+                    a_c += 1
+                    if c >= 2:
+                        for grandchild in child.children:
+                            if grandchild.active and grandchild.ba and grandchild.mp:
+                                if grandchild.cumulative_left <= grandchild.cumulative_right:
+                                    grandchild_binary_number = grandchild.cumulative_left * 2
+                                else:
+                                    grandchild_binary_number = grandchild.cumulative_right * 2
+                                bonus += grandchild.calculate_riseup_binary_bonus(bonus_rise_params, grandchild_binary_number) * 0.05
+                                bonus = int(bonus)
+                                a_c += 1
+                                if c >= 3:
+                                    for great_grandchild in grandchild.children:
+                                        if great_grandchild.active and great_grandchild.ba and great_grandchild.mp:
+                                            if great_grandchild.cumulative_left <= great_grandchild.cumulative_right:
+                                                ggc_binary_number = great_grandchild.cumulative_left * 2
+                                            else:
+                                                ggc_binary_number = great_grandchild.cumulative_right * 2
+                                            bonus += great_grandchild.calculate_riseup_binary_bonus(bonus_rise_params, ggc_binary_number) * 0.05
+                                            bonus = int(bonus)
+                                            a_c += 1
+        return bonus,a_c
 
     def calculate_car_bonus(self) -> int:
         if self.calculation_title >= 4 and self.past_calculation_title >= 4:
@@ -299,15 +282,6 @@ def read_csv_file(file):
             print(f"データ変換エラー: {e}, 行: {row}")
     return nodes
 
-def build_node_hierarchy(nodes: List[Node]) -> List[Node]:
-    for node in nodes:
-        if node.referrer_name:
-            parent = node.referrer_name
-            c_node = node
-            for node in nodes:
-                if node.name == parent:
-                    node.children.append(c_node)
-
 def calculate_all_bonuses(nodes: List[Node], bonus_rise_params: Dict[str, float], bonus_pf_params: Dict[str, int]) -> Dict[str, Tuple[int, int]]:
     total_paid_points = sum(node.purchase_amount for node in nodes)
     bonus_summary = {
@@ -360,15 +334,10 @@ def calculate_all_bonuses(nodes: List[Node], bonus_rise_params: Dict[str, float]
                 bonus_summary['product_free_bonus'][0] += product_free_bonus
                 bonus_summary['product_free_bonus'][1] += 1
 
-            matching_bonus = node.calculate_matching_bonus(bonus_rise_params)
+            matching_bonus,a_c = node.calculate_matching_bonus(bonus_rise_params)
             if matching_bonus > 0:
                 bonus_summary['matching_bonus'][0] += matching_bonus
-                active_count = (
-                    len([child for child in node.children if child.active]) +
-                    len([gc for child in node.children for gc in child.children if gc.active]) +
-                    len([ggc for child in node.children for gc in child.children for ggc in gc.children if ggc.active])
-                )
-                bonus_summary['matching_bonus'][1] += min(3, active_count)
+                bonus_summary['matching_bonus'][1] += a_c
 
             car_bonus = node.calculate_car_bonus()
             if car_bonus > 0:
@@ -464,7 +433,12 @@ def main():
 
         simulation_results = []
         
-        build_node_hierarchy(nodes)
+        for node in nodes:
+            if node.referrer_name:
+                for p_node in nodes:
+                    if p_node.name == node.referrer_name:
+                        p_node.children.append(node)
+        st.write("親子関係構築完了")
 
         # シミュレーションループ
         for sim in range(num_simulations):
