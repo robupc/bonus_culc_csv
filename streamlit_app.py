@@ -432,12 +432,18 @@ def main():
             st.write("CSVファイルをアップロードしてください。")
 
         simulation_results = []
-        
+        # nodes を辞書に変換
+        node_dict = {node.referrer_name: node for node in nodes}
+
+        # 各 node を処理
         for node in nodes:
             if node.referrer_name:
-                for p_node in nodes:
-                    if p_node.name == node.referrer_name:
-                        p_node.children.append(node)
+                c_node = node_dict.get(node.name)
+                if c_node:
+                    node.children.append(c_node)
+                    if node.name in node_dict:
+                        del node_dict[node.name]
+
         st.write("親子関係構築完了")
 
         # シミュレーションループ
