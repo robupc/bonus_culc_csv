@@ -437,12 +437,11 @@ def main():
 
         # 各 node を処理
         for node in nodes:
-            if node.referrer_name:
-                c_node = node_dict.get(node.name)
-                if c_node:
-                    node.children.append(c_node)
-                    if node.name in node_dict:
-                        del node_dict[node.name]
+            c_node = node_dict.get(node.name)
+            if c_node:
+                node.children.append(c_node)
+                if node.name in node_dict:
+                    del node_dict[node.name]
 
         st.write("親子関係構築完了")
 
