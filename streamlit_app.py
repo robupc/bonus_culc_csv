@@ -454,6 +454,8 @@ def main():
     
         st.write("親子関係構築完了")
 
+        simulation_results = []
+
         # シミュレーションループ
         for sim in range(num_simulations):
             total_bonus = 0
