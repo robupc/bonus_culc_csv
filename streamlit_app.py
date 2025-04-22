@@ -139,10 +139,17 @@ class Node:
     def calculate_matching_bonus(self, bonus_rise_params: Dict[str, float]) -> int:
         bonus = 0
         a_c = 0
-        c = len(self.children)
+        #c = len(self.children)
+        c = 0
+        cc = 0
+        ccc = 0
+        for child in self.children:
+            if child.active and child.ba and child.mp:
+                c += 1
         if c >= 1:
             for child in self.children:
                 if child.active and child.ba and child.mp:
+                    cc += 1
                     if child.cumulative_left <= child.cumulative_right:
                         child_binary_number = child.cumulative_left * 2
                     else:
@@ -150,26 +157,27 @@ class Node:
                     bonus += child.calculate_riseup_binary_bonus(bonus_rise_params, child_binary_number) * 0.15
                     bonus = int(bonus)
                     a_c += 1
-                    if c >= 2:
-                        for grandchild in child.children:
-                            if grandchild.active and grandchild.ba and grandchild.mp:
-                                if grandchild.cumulative_left <= grandchild.cumulative_right:
-                                    grandchild_binary_number = grandchild.cumulative_left * 2
-                                else:
-                                    grandchild_binary_number = grandchild.cumulative_right * 2
-                                bonus += grandchild.calculate_riseup_binary_bonus(bonus_rise_params, grandchild_binary_number) * 0.05
-                                bonus = int(bonus)
-                                a_c += 1
-                                if c >= 3:
-                                    for great_grandchild in grandchild.children:
-                                        if great_grandchild.active and great_grandchild.ba and great_grandchild.mp:
-                                            if great_grandchild.cumulative_left <= great_grandchild.cumulative_right:
-                                                ggc_binary_number = great_grandchild.cumulative_left * 2
-                                            else:
-                                                ggc_binary_number = great_grandchild.cumulative_right * 2
-                                            bonus += great_grandchild.calculate_riseup_binary_bonus(bonus_rise_params, ggc_binary_number) * 0.05
-                                            bonus = int(bonus)
-                                            a_c += 1
+                if cc >= 2:
+                    for grandchild in child.children:
+                        if grandchild.active and grandchild.ba and grandchild.mp:
+                            ccc += 1
+                            if grandchild.cumulative_left <= grandchild.cumulative_right:
+                                grandchild_binary_number = grandchild.cumulative_left * 2
+                            else:
+                                grandchild_binary_number = grandchild.cumulative_right * 2
+                            bonus += grandchild.calculate_riseup_binary_bonus(bonus_rise_params, grandchild_binary_number) * 0.05
+                            bonus = int(bonus)
+                            a_c += 1
+                        if ccc >= 3:
+                            for great_grandchild in grandchild.children:
+                                if great_grandchild.active and great_grandchild.ba and great_grandchild.mp:
+                                    if great_grandchild.cumulative_left <= great_grandchild.cumulative_right:
+                                        ggc_binary_number = great_grandchild.cumulative_left * 2
+                                    else:
+                                        ggc_binary_number = great_grandchild.cumulative_right * 2
+                                    bonus += great_grandchild.calculate_riseup_binary_bonus(bonus_rise_params, ggc_binary_number) * 0.05
+                                    bonus = int(bonus)
+                                    a_c += 1
         return bonus,a_c
 
     def calculate_car_bonus(self) -> int:
@@ -453,7 +461,7 @@ def main():
                         node_dict.pop(node.name)
     
         st.write("親子関係構築完了")
-
+        
         simulation_results = []
 
         # シミュレーションループ
